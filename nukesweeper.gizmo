@@ -1,0 +1,37 @@
+#! C:/Program Files/Nuke13.2v2/nuke-13.2.2.dll -nx
+version 13.2 v2
+Gizmo {
+ tile_color 0xff5555ff
+ label "Win: \[value this.wins]\nLost: \[value this.lost]"
+ note_font_size 31
+ addUserKnob {20 Config}
+ addUserKnob {3 columns l Columns}
+ columns 12
+ addUserKnob {3 rows l Rows -STARTLINE}
+ rows 12
+ addUserKnob {3 mines l Mines}
+ mines 20
+ addUserKnob {3 wins l Wins +INVISIBLE}
+ addUserKnob {3 lost l Lost -STARTLINE +INVISIBLE}
+ addUserKnob {3 cellsN +INVISIBLE}
+ addUserKnob {6 boom -STARTLINE +INVISIBLE}
+ addUserKnob {22 play l "Let's Play!!" T "import random\nnode = nuke.thisNode()\nnode.knob(\"columns\").setFlag(nuke.DISABLED)\nnode.knob(\"rows\").setFlag(nuke.DISABLED)\nnode.knob(\"boom\").setValue(False)\ncols = int(node.knob(\"columns\").value())\nrows = int(node.knob(\"rows\").value())\nnode.knob(\"cellsN\").setValue(cols * rows - int(node.knob(\"mines\").value()))\noriginx = node.knob(\"xpos\").value() + 100.0\noriginy = node.knob(\"ypos\").value() + 100.0\nwith nuke.toNode('.'.join(\['root'] + nuke.thisNode().fullName().split('.')\[:-1])):\n    for x in range(0, cols):\n        for y in range(0, rows):\n            nodeName = \"Cell_\{0\}_\{1\}\".format(str(x), str(y))\n            if nuke.toNode(nodeName) is not None:\n                nuke.delete(nuke.toNode(nodeName))\n            cell = nuke.createNode(\"NoOp\", inpanel = False)\n            cell.knob(\"selected\").setValue(False)\n            cell.knob(\"hide_input\").setValue(True)\n            cell.knob(\"name\").setValue(nodeName)\n            cell.knob(\"xpos\").setExpression(str(originx + 110*x))\n            cell.knob(\"ypos\").setExpression(str(originy + 45*y))\n            cell.knob(\"label\").setValue(\"-\")\n            checked = nuke.Boolean_Knob(\"checked\", \"Checked\")\n            checked.setFlag(nuke.INVISIBLE)\n            cell.addKnob(checked)\n            count = nuke.Int_Knob(\"count\", \"Count\")\n            count.setFlag(nuke.INVISIBLE)\n            cell.addKnob(count)\n            cell.knob(\"knobChanged\").setValue(\"colors = \{\\\"0\\\": 3435973887, \\\"1\\\": 4194303, \\\"2\\\": 277086463, \\\"3\\\":4283848447, \\\"4\\\": 251691007, \\\"9\\\": 255\}\\nif nuke.thisKnob().name() == \\\"selected\\\":\\n    sweeper = nuke.toNode(\\\"NUKESWEEPER\\\")\\n    if not nuke.thisNode().knob(\\\"checked\\\").value():\\n        nuke.thisNode().knob(\\\"checked\\\").setValue(True)\\n        end = False\\n        win = False\\n        if int(nuke.thisNode().knob(\\\"count\\\").value()) == 9:\\n            nuke.thisNode().knob(\\\"tile_color\\\").setValue(colors\[\\\"9\\\"])\\n            nuke.thisNode().knob(\\\"label\\\").setValue(\\\"BOOM\\\")\\n            if not sweeper.knob(\\\"boom\\\").value():\\n                sweeper.knob(\\\"boom\\\").setValue(True)\\n                sweeper.knob(\\\"lost\\\").setValue(int(sweeper.knob(\\\"lost\\\").value()) + 1)\\n                end = True\\n        else:\\n            nameParts = nuke.thisNode().name().split(\\\"_\\\")\\n            nuke.thisNode().knob(\\\"label\\\").setValue(\\\"\[value this.count]\\\")\\n            sweeper.knob(\\\"cellsN\\\").setValue(int(sweeper.knob(\\\"cellsN\\\").value()) - 1)\\n            nStr = str(nuke.thisNode().knob(\\\"count\\\").value())\\n            if colors.get(nStr) is not None:\\n                nuke.thisNode().knob(\\\"tile_color\\\").setValue(colors\[nStr])\\n            else:\\n                nuke.thisNode().knob(\\\"tile_color\\\").setValue(1713729791)\\n            if int(sweeper.knob(\\\"cellsN\\\").value()) == 0:\\n                sweeper.knob(\\\"wins\\\").setValue(int(sweeper.knob(\\\"wins\\\").value()) + 1)\\n                end = True\\n                win = True\\n            elif int(nuke.thisNode().knob(\\\"count\\\").value()) == 0:\\n                x = int(nameParts\[1])\\n                y = int(nameParts\[2])\\n                for i in range(-1, 2):\\n                    for j in range(-1, 2):\\n                        if i == 0 and j == 0:\\n                            continue\\n                        cellName = \\\"Cell_\{0\}_\{1\}\\\".format(str(x + i), str(y + j))\\n                        cell = nuke.toNode(cellName)\\n                        if cell is not None:\\n                            if not cell.knob(\\\"checked\\\").value():\\n                                cell.knob(\\\"selected\\\").setValue(True)\\n        if end:\\n            cols = int(sweeper.knob(\\\"columns\\\").value())\\n            rows = int(sweeper.knob(\\\"rows\\\").value())\\n            for x in range(0, cols):\\n                for y in range(0, rows):\\n                    nodeName = \\\"Cell_\{0\}_\{1\}\\\".format(str(x), str(y))\\n                    cell = nuke.toNode(nodeName)\\n                    if cell is not None:\\n                        if not cell.knob(\\\"checked\\\").value():\\n                            nStr = str(cell.knob(\\\"count\\\").value())\\n                            if colors.get(nStr) is not None:\\n                                cell.knob(\\\"tile_color\\\").setValue(colors\[nStr])\\n                            else:\\n                                cell.knob(\\\"tile_color\\\").setValue(1713729791)\\n                            if int(cell.knob(\\\"count\\\").value()) == 9:\\n                                cell.knob(\\\"label\\\").setValue(\\\"BOOM\\\")\\n                            else:\\n                                cell.knob(\\\"label\\\").setValue(\\\"\[value this.count]\\\")\\n            if win:\\n                nuke.message('You win this time!')\\n            else:\\n                nuke.message('oh oh BOOM!!')\\n    nuke.thisNode().knob(\\\"selected\\\").setValue(False)\")\n    for m in range(0, int(node.knob(\"mines\").value())):\n        xpos = random.randint(0, int(node.knob(\"columns\").value()) - 1)\n        ypos = random.randint(0, int(node.knob(\"rows\").value()) - 1)\n        mNode = nuke.toNode(\"Cell_\{0\}_\{1\}\".format(str(xpos), str(ypos)))\n        if int(mNode.knob(\"count\").value()) != 9:\n            mNode.knob(\"count\").setValue(9)\n            for x in range(-1, 2):\n                for y in range(-1, 2):\n                    if x == 0 and y == 0:\n                        continue\n                    mNode = nuke.toNode(\"Cell_\{0\}_\{1\}\".format(str(xpos+x), str(ypos+y)))\n                    if mNode is not None:\n                        mNode.knob(\"count\").setValue(min(9, int(mNode.knob(\"count\").value()+1)))" +STARTLINE}
+ addUserKnob {22 stop l "Let's Work... :(" -STARTLINE T "# Lets work\nnode = nuke.thisNode()\nwith nuke.toNode('.'.join(\['root'] + nuke.thisNode().fullName().split('.')\[:-1])):\n    for x in range(0, int(node.knob(\"columns\").value())):\n        for y in range(0, int(node.knob(\"rows\").value())):\n            nodeName = \"Cell_\{0\}_\{1\}\".format(str(x), str(y))\n            if nuke.toNode(nodeName) is not None:\n                nuke.delete(nuke.toNode(nodeName))\nnode.knob(\"columns\").clearFlag(nuke.DISABLED)\nnode.knob(\"rows\").clearFlag(nuke.DISABLED)"}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 226
+  ypos -22
+ }
+ NoOp {
+  name NoOp1
+  xpos 226
+  ypos 18
+ }
+ Output {
+  name Output1
+  xpos 226
+  ypos 118
+ }
+end_group
